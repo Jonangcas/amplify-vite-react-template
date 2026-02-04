@@ -1,25 +1,36 @@
 import { useEffect, useState } from "react";
-import type { Schema } from "../amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
 
-const client = generateClient<Schema>();
+type Todo = {
+  id: string;
+  content: string | null;
+};
 
 function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
 
+  // Cargar algunos todos de ejemplo al iniciar (simula datos iniciales)
   useEffect(() => {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
+    setTodos([
+      { id: "1", content: "Aprender React sin Amplify" },
+      { id: "2", content: "Entregar práctica en Vocareum" },
+    ]);
   }, []);
 
   function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
+    const content = window.prompt("Todo content");
+    if (!content) return;
+
+    const newTodo: Todo = {
+      id: crypto.randomUUID(),
+      content,
+    };
+
+    setTodos((prev) => [...prev, newTodo]);
   }
 
   return (
     <main>
-      <h1>My todos</h1>
+      <h1>My todos (sin Amplify)</h1>
       <button onClick={createTodo}>+ new</button>
       <ul>
         {todos.map((todo) => (
@@ -27,11 +38,9 @@ function App() {
         ))}
       </ul>
       <div>
-        🥳 App successfully hosted. Try creating a new todo.
+        🥳 App funcionando sólo con React y estado local.
         <br />
-        <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
-          Review next step of this tutorial.
-        </a>
+        Ya no usa AWS Amplify ni ningún backend.
       </div>
     </main>
   );
